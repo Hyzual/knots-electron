@@ -1,8 +1,9 @@
 require('./style.css');
 var d3    = require('d3');
-var knots = require('knotsjs');
+// var knots = require('knotsjs');
 
-console.log(knots.parse);
+// console.log(knots.parse);
+console.log('zbra');
 
 var dependencies = {
   "nodes": [{

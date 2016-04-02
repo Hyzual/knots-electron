@@ -1,12 +1,13 @@
-var path = require('path');
+var path                             = require('path');
+var webpack_target_electron_renderer = require('webpack-target-electron-renderer');
 
-module.exports = {
+var config = {
   entry: {
-    bundle: './index.js'
+    bundle: './app/index.js'
   },
   output: {
     path: path.join(__dirname, 'dist'),
-    publicPath: 'dist',
+    publicPath: 'http://localhost:8080/dist/',
     filename: '[name].js'
   },
   module: {
@@ -18,3 +19,7 @@ module.exports = {
     ]
   }
 };
+
+config.target = webpack_target_electron_renderer(config);
+
+module.exports = config;
