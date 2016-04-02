@@ -1,5 +1,5 @@
 {
-  "name": "knots-alectron",
+  "name": "knots-electron",
   "version": "1.0.0",
   "description": "Electron app to visualize knotsjs",
   "main": "main.js",
@@ -7,7 +7,7 @@
     "build": "./node_modules/.bin/webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "./node_modules/.bin/electron .",
-    "watch": "./node_modules/.bin/webpack-dev-server --progress --colors --hot --inline"
+    "watch": "./node_modules/.bin/gulp serve"
   },
   "author": "Hyzual <hyzual@gmail.com>",
   "license": "GPL-3.0",
@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "css-loader": "^0.23.1",
+    "electron-connect": "^0.3.7",
+    "gulp": "^3.9.1",
     "json-loader": "^0.5.4",
     "style-loader": "^0.13.1",
     "webpack": "^1.12.14",

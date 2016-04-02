@@ -13,8 +13,11 @@
   and Electron <script>document.write(process.versions.electron)</script>.
   </p>
   <svg id="graph"></svg>
+  <!-- build:remove -->
+  <!-- Connect to server process -->
+  <script>require('electron-connect').client.create()</script>
+  <!-- end:build -->
   <script src="app/index.js" type="text/javascript" charset="utf-8" async></script>
-  <!-- <script>var escope = require('escope');</script> -->
   <!-- <script src="http://localhost:8080/dist/bundle.js" type="text/javascript" charset="utf-8"></script> -->
 </body>
 </html>
