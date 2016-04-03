@@ -15,6 +15,17 @@ knots.parse(function(err, dependencies) {
     .attr('width', width)
     .attr('height', height);
 
+  var link = svg
+    .selectAll('line')
+    .data(dependencies.links)
+    .enter()
+    .append('line')
+    .attr('class', 'link')
+    .attr('x1', function(d) { return d.source.x; })
+    .attr('y1', function(d) { return d.source.y; })
+    .attr('x2', function(d) { return d.target.x; })
+    .attr('y2', function(d) { return d.target.y; });
+
   var node = svg
     .selectAll('circle')
     .data(dependencies.nodes)
@@ -33,14 +44,4 @@ knots.parse(function(err, dependencies) {
     .append('circle')
     .attr('r', 7);
 
-  var link = svg
-    .selectAll()
-    .data(dependencies.links)
-    .enter()
-    .append('line')
-    .attr('class', 'link')
-    .attr('x1', function(d) { return d.source.x; })
-    .attr('y1', function(d) { return d.source.y; })
-    .attr('x2', function(d) { return d.target.x; })
-    .attr('y2', function(d) { return d.target.y; });
 });
