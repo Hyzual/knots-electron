@@ -34,6 +34,20 @@ knots.parse(function(err, dependencies) {
     .attr('class', 'node')
     .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
+  var max_transitive_dependencies_and_dependents = _(dependencies.nodes)
+    .map(function (node) {
+      return node.nb_transitive_dependencies + node.nb_transitive_dependents;
+    })
+    .max();
+
+  console.log('max', max_transitive_dependencies_and_dependents);
+
+  var color = d3
+    .scale
+    .linear()
+    .domain([0, max_transitive_dependencies_and_dependents])
+    .range(["white", "red"]);
+
   node
     .append('text')
     .attr('dx', 12)
@@ -42,6 +56,8 @@ knots.parse(function(err, dependencies) {
 
   node
     .append('circle')
-    .attr('r', 7);
-
+    .attr('r', 7)
+    .style('fill', function(d) {
+      return color(d.nb_transitive_dependencies + d.nb_transitive_dependents);
+    });
 });
