@@ -10,8 +10,13 @@ svg {
   stroke: #ccc;
 }
 
+.node circle {
+  stroke: #000;
+  fill: #FFF;
+}
+
 .node text {
   pointer-events: none;
+  fill: #444;
   font: 10px sans-serif;
-  color: black;
 }

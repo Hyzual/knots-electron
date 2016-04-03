@@ -1,4 +1,5 @@
 var gulp     = require('gulp');
+var glob     = require('glob-all');
 var electron = require('electron-connect').server.create();
 
 gulp.task('serve', function () {
@@ -10,9 +11,11 @@ gulp.task('serve', function () {
   // gulp.watch('main.js', electron.restart);
 
   // Reload renderer process
-  gulp.watch([
+  var files = glob.sync([
   	'main.js',
-  	'app/index.js',
+    'app/style.css',
+  	'app/**/*.js',
   	'index.html'
-  ], electron.reload);
+  ]);
+  gulp.watch(files, electron.reload);
 });
