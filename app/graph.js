@@ -25,22 +25,24 @@ function show(dependencies, width, height) {
     .enter()
     .append('line')
     .attr('class', 'link')
-    .attr('x1', function(d) { return d.source.x; })
-    .attr('y1', function(d) { return d.source.y; })
-    .attr('x2', function(d) { return d.target.x; })
-    .attr('y2', function(d) { return d.target.y; });
+    .attr('x1', function(link) { return dependencies.nodes[link.e.source].x; })
+    .attr('y1', function(link) { return dependencies.nodes[link.e.source].y; })
+    .attr('x2', function(link) { return dependencies.nodes[link.e.target].x; })
+    .attr('y2', function(link) { return dependencies.nodes[link.e.target].y; });
+
+  var nodes_array = _.values(dependencies.nodes);
 
   var node = svg
     .selectAll('circle')
-    .data(dependencies.nodes)
+    .data(nodes_array)
     .enter()
     .append('g')
     .attr('class', 'node')
-    .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+    .attr('transform', function(node) { return 'translate(' + node.x + ',' + node.y + ')'; });
 
-  var max_transitive_dependencies_and_dependents = _(dependencies.nodes)
+  var max_transitive_dependencies_and_dependents = _(nodes_array)
     .map(function (node) {
-      return node.nb_transitive_dependencies + node.nb_transitive_dependents;
+      return node.p.sum_transitive_dependencies + node.p.sum_transitive_dependents;
     })
     .max();
 
@@ -54,12 +56,12 @@ function show(dependencies, width, height) {
     .append('text')
     .attr('dx', 12)
     .attr('dy', '.35em')
-    .text(function(d) { return d.name; });
+    .text(function(node) { return node.name; });
 
   node
     .append('circle')
     .attr('r', 7)
-    .style('fill', function(d) {
-      return color(d.nb_transitive_dependencies + d.nb_transitive_dependents);
+    .style('fill', function(node) {
+      return color(node.p.sum_transitive_dependencies + node.p.sum_transitive_dependents);
     });
 }
