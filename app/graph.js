@@ -19,30 +19,30 @@ function show(dependencies, width, height) {
     .attr('width', width)
     .attr('height', height);
 
-  var link = svg
+  var edge = svg
     .selectAll('line')
-    .data(dependencies.links)
+    .data(dependencies.edges)
     .enter()
     .append('line')
-    .attr('class', 'link')
-    .attr('x1', function(link) { return dependencies.nodes[link.e.source].x; })
-    .attr('y1', function(link) { return dependencies.nodes[link.e.source].y; })
-    .attr('x2', function(link) { return dependencies.nodes[link.e.target].x; })
-    .attr('y2', function(link) { return dependencies.nodes[link.e.target].y; });
+    .attr('class', 'edge')
+    .attr('x1', function(edge) { return dependencies.vertices[edge.e.source].x; })
+    .attr('y1', function(edge) { return dependencies.vertices[edge.e.source].y; })
+    .attr('x2', function(edge) { return dependencies.vertices[edge.e.target].x; })
+    .attr('y2', function(edge) { return dependencies.vertices[edge.e.target].y; });
 
-  var nodes_array = _.values(dependencies.nodes);
+  var vertices_array = _.values(dependencies.vertices);
 
-  var node = svg
+  var vertex = svg
     .selectAll('circle')
-    .data(nodes_array)
+    .data(vertices_array)
     .enter()
     .append('g')
-    .attr('class', 'node')
-    .attr('transform', function(node) { return 'translate(' + node.x + ',' + node.y + ')'; });
+    .attr('class', 'vertex')
+    .attr('transform', function(vertex) { return 'translate(' + vertex.x + ',' + vertex.y + ')'; });
 
-  var max_transitive_dependencies_and_dependents = _(nodes_array)
-    .map(function (node) {
-      return node.p.sum_transitive_dependencies + node.p.sum_transitive_dependents;
+  var max_transitive_dependencies_and_dependents = _(vertices_array)
+    .map(function (vertex) {
+      return vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents;
     })
     .max();
 
@@ -52,16 +52,24 @@ function show(dependencies, width, height) {
     .domain([0, max_transitive_dependencies_and_dependents])
     .range(["white", "red"]);
 
-  node
+  vertex
     .append('text')
     .attr('dx', 12)
     .attr('dy', '.35em')
-    .text(function(node) { return node.name; });
+    .text(function(vertex) { return vertex.name; });
 
-  node
+  vertex
+    .append('title')
+    .text(function(vertex) {
+      return 'name: ' + vertex.name
+        + '\n' + 'sum_transitive_dependencies: ' + vertex.p.sum_transitive_dependencies
+        + '\n' + 'sum_transitive_dependents: ' + vertex.p.sum_transitive_dependents;
+    });
+
+  vertex
     .append('circle')
     .attr('r', 7)
-    .style('fill', function(node) {
-      return color(node.p.sum_transitive_dependencies + node.p.sum_transitive_dependents);
+    .style('fill', function(vertex) {
+      return color(vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents);
     });
 }

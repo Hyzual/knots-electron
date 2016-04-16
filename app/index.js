@@ -20,7 +20,7 @@ function parseFiles(filenames) {
     var width  = 960;
     var height = 500;
 
-    layout.layoutNodes(dependencies.orderedNodes, width, height);
+    layout.layoutVertices(dependencies.ordered_vertices, width, height);
 
     graph.erase();
     graph.show(dependencies, width, height);
