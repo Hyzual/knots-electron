@@ -20,15 +20,23 @@ function show(dependencies, width, height) {
     .attr('height', height);
 
   var edge = svg
-    .selectAll('line')
+    .selectAll('path')
     .data(dependencies.edges)
     .enter()
-    .append('line')
+    .append('path')
     .attr('class', 'edge')
-    .attr('x1', function(edge) { return dependencies.vertices[edge.e.source].x; })
-    .attr('y1', function(edge) { return dependencies.vertices[edge.e.source].y; })
-    .attr('x2', function(edge) { return dependencies.vertices[edge.e.target].x; })
-    .attr('y2', function(edge) { return dependencies.vertices[edge.e.target].y; });
+    .attr('d', function(edge) {
+      var start_point = 'M ' + dependencies.vertices[edge.e.source].x + ' ' + dependencies.vertices[edge.e.source].y;
+      var end_point   = dependencies.vertices[edge.e.target].x + ' ' + dependencies.vertices[edge.e.target].y;
+
+      if (edge.p.type === 'reverse') {
+        var control_point = dependencies.vertices[edge.e.target].x + ' ' + dependencies.vertices[edge.e.source].y;
+        var curve         = 'Q ' + control_point + ',' + end_point;
+        return start_point + ' ' + curve;
+      }
+
+      return start_point + ' ' +  'L ' + end_point;
+    });
 
   var vertices_array = _.values(dependencies.vertices);
 
@@ -39,18 +47,6 @@ function show(dependencies, width, height) {
     .append('g')
     .attr('class', 'vertex')
     .attr('transform', function(vertex) { return 'translate(' + vertex.x + ',' + vertex.y + ')'; });
-
-  var max_transitive_dependencies_and_dependents = _(vertices_array)
-    .map(function (vertex) {
-      return vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents;
-    })
-    .max();
-
-  var color = d3
-    .scale
-    .linear()
-    .domain([0, max_transitive_dependencies_and_dependents])
-    .range(["white", "red"]);
 
   vertex
     .append('text')
@@ -65,6 +61,18 @@ function show(dependencies, width, height) {
         + '\n' + 'sum_transitive_dependencies: ' + vertex.p.sum_transitive_dependencies
         + '\n' + 'sum_transitive_dependents: ' + vertex.p.sum_transitive_dependents;
     });
+
+  var max_transitive_dependencies_and_dependents = _(vertices_array)
+    .map(function (vertex) {
+      return vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents;
+    })
+    .max();
+
+  var color = d3
+    .scale
+    .linear()
+    .domain([0, max_transitive_dependencies_and_dependents])
+    .range(["white", "red"]);
 
   vertex
     .append('circle')
