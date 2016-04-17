@@ -9,7 +9,7 @@ function layoutVertices(ordered_vertices, total_width, total_height) {
   var current_level = 1;
 
   // TODO: Maybe transform to array here
-  _.forOwnRight(ordered_vertices, function(vertices) {
+  _.forOwn(ordered_vertices, function(vertices) {
     _.map(vertices, function(vertex, index) {
       vertex.y = layoutVertically(current_level, nb_levels + 1, total_height);
       vertex.x = layoutHorizontally(index + 1, vertices.length + 1, total_width);
