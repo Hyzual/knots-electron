@@ -6,6 +6,12 @@ svg {
   background-color: #FFF;
 }
 
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: move;
+}
+
 .edge {
   stroke: #CCC;
   fill: transparent;

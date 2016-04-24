@@ -14,10 +14,59 @@ function erase() {
 }
 
 function show(dependencies, width, height) {
+
+  var x = d3
+    .scale
+    .linear()
+    .domain([0, width])
+    .range([0, width]);
+
+  var y = d3
+    .scale
+    .linear()
+    .domain([0, height])
+    .range([height, 0]);
+
+  var zoom_behavior = d3
+    .behavior
+    .zoom()
+    .x(x)
+    .y(y)
+    .on('zoom', zoom);
+
   var svg = d3
     .select('#graph')
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height)
+    .append('g')
+    .call(zoom_behavior);
+
+  svg.append("rect")
+    .attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height);
+
+  //TODO: limit panning around, I should not be able to pan the entire graph out of view
+  function zoom() {
+    edge.attr('d', layoutEdge);
+    vertex.attr('transform', layoutVertex);
+  }
+
+  function layoutEdge(edge) {
+    var start_point = 'M ' + x(dependencies.vertices[edge.e.source].x) + ' '
+      + y(dependencies.vertices[edge.e.source].y);
+    var end_point = x(dependencies.vertices[edge.e.target].x) + ' '
+      + y(dependencies.vertices[edge.e.target].y);
+
+    if (edge.p.type === 'reverse') {
+      var control_point = x(dependencies.vertices[edge.e.target].x) + ' '
+        + y(dependencies.vertices[edge.e.source].y);
+      var curve = 'Q ' + control_point + ',' + end_point;
+      return start_point + ' ' + curve;
+    }
+
+    return start_point + ' ' +  'L ' + end_point;
+  }
 
   var edge = svg
     .selectAll('path')
@@ -25,18 +74,14 @@ function show(dependencies, width, height) {
     .enter()
     .append('path')
     .attr('class', 'edge')
-    .attr('d', function(edge) {
-      var start_point = 'M ' + dependencies.vertices[edge.e.source].x + ' ' + dependencies.vertices[edge.e.source].y;
-      var end_point   = dependencies.vertices[edge.e.target].x + ' ' + dependencies.vertices[edge.e.target].y;
+    .attr('d', layoutEdge);
 
-      if (edge.p.type === 'reverse') {
-        var control_point = dependencies.vertices[edge.e.target].x + ' ' + dependencies.vertices[edge.e.source].y;
-        var curve         = 'Q ' + control_point + ',' + end_point;
-        return start_point + ' ' + curve;
-      }
-
-      return start_point + ' ' +  'L ' + end_point;
-    });
+  function layoutVertex(vertex) {
+    return 'translate('
+      + x(vertex.x) + ','
+      + y(vertex.y)
+      + ')';
+  }
 
   var vertices_array = _.values(dependencies.vertices);
 
@@ -46,7 +91,7 @@ function show(dependencies, width, height) {
     .enter()
     .append('g')
     .attr('class', 'vertex')
-    .attr('transform', function(vertex) { return 'translate(' + vertex.x + ',' + vertex.y + ')'; });
+    .attr('transform', layoutVertex);
 
   vertex
     .append('text')
