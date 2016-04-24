@@ -14,6 +14,9 @@ function openFile() {
 }
 
 function parseFiles(filenames) {
+  if (! filenames) {
+    return;
+  }
   console.log('filenames', filenames);
 
   knots.parseFiles(filenames, function(err, dependencies) {
