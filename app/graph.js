@@ -25,7 +25,7 @@ function show(dependencies, width, height) {
     .scale
     .linear()
     .domain([0, height])
-    .range([height, 0]);
+    .range([0, height]);
 
   var zoom_behavior = d3
     .behavior
