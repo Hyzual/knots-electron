@@ -6,10 +6,17 @@ svg {
   background-color: #FFF;
 }
 
-.overlay {
-  fill: none;
+.level {
   pointer-events: all;
   cursor: move;
+}
+
+.level.white {
+  fill: #FFF;
+}
+
+.level.grey {
+  fill: #EFEFEF;
 }
 
 .edge {

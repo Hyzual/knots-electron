@@ -5,6 +5,7 @@ var Promise   = require('bluebird');
 var recursive = require('recursive-readdir');
 var knots     = require('knotsjs');
 var path      = require('path');
+var _         = require('lodash');
 var layout    = require('./app/layout.js');
 var graph     = require('./app/graph.js');
 
@@ -56,9 +57,21 @@ function parse(file_paths) {
     var width  = 960;
     var height = 500;
 
-    layout.layoutVertices(dependencies.ordered_vertices, width, height);
+    var layout_obj = layout.layoutVertices(
+      dependencies.ordered_vertices,
+      width,
+      height
+    );
+
+    var arranged_dependencies = _.extend({},
+      dependencies,
+      {
+        ordered_vertices: layout_obj.laid_out_vertices,
+        levels          : layout_obj.levels
+      }
+    );
 
     graph.erase();
-    graph.show(dependencies, width, height);
+    graph.show(arranged_dependencies, width, height);
   });
 }

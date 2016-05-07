@@ -14,7 +14,6 @@ function erase() {
 }
 
 function show(dependencies, width, height) {
-
   var x = d3
     .scale
     .linear()
@@ -41,16 +40,30 @@ function show(dependencies, width, height) {
     .append('g')
     .call(zoom_behavior);
 
-  svg.append("rect")
-    .attr("class", "overlay")
-    .attr("width", width)
-    .attr("height", height);
-
-  //TODO: limit panning around, I should not be able to pan the entire graph out of view
-  function zoom() {
-    edge.attr('d', layoutEdge);
-    vertex.attr('transform', layoutVertex);
+  var isEven = false;
+  function alternateBackgroundColor() {
+    isEven = ! isEven;
+    return isEven;
   }
+
+  function layoutTransform(obj) {
+    return 'translate('
+      + x(obj.x) + ','
+      + y(obj.y)
+      + ')';
+  }
+
+  var level = svg
+    .selectAll('.level')
+    .data(dependencies.levels)
+    .enter()
+    .append('rect')
+    .attr('class', function(level) {
+      var backgroundColor = (alternateBackgroundColor()) ? 'white' : 'grey';
+      return 'level ' + backgroundColor; })
+    .attr('width', function(level) { return level.width; })
+    .attr('height', function(level) { return level.height; })
+    .attr('transform', layoutTransform);
 
   function layoutEdge(edge) {
     var start_point = 'M ' + x(dependencies.vertices[edge.e.source].x) + ' '
@@ -69,29 +82,22 @@ function show(dependencies, width, height) {
   }
 
   var edge = svg
-    .selectAll('path')
+    .selectAll('.edge')
     .data(dependencies.edges)
     .enter()
     .append('path')
     .attr('class', 'edge')
     .attr('d', layoutEdge);
 
-  function layoutVertex(vertex) {
-    return 'translate('
-      + x(vertex.x) + ','
-      + y(vertex.y)
-      + ')';
-  }
-
   var vertices_array = _.values(dependencies.vertices);
 
   var vertex = svg
-    .selectAll('circle')
+    .selectAll('.vertex')
     .data(vertices_array)
     .enter()
     .append('g')
     .attr('class', 'vertex')
-    .attr('transform', layoutVertex);
+    .attr('transform', layoutTransform);
 
   vertex
     .append('text')
@@ -125,4 +131,13 @@ function show(dependencies, width, height) {
     .style('fill', function(vertex) {
       return color(vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents);
     });
+
+  //TODO: limit panning around, I should not be able to pan the entire graph out of view
+  function zoom() {
+    edge.attr('d', layoutEdge);
+    vertex.attr('transform', layoutTransform);
+    level.attr('transform', function(level) {
+      return layoutTransform(level) + 'scale(' + d3.event.scale + ')';
+    });
+  }
 }
