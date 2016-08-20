@@ -1,10 +1,7 @@
 // require('./style.css');
 var remote    = require('remote');
 var dialog    = remote.require('dialog');
-var Promise   = require('bluebird');
-var recursive = require('recursive-readdir');
 var knots     = require('knotsjs');
-var path      = require('path');
 var _         = require('lodash');
 var layout    = require('./app/layout.js');
 var graph     = require('./app/graph.js');
@@ -29,8 +26,9 @@ function parseFile(file_paths) {
   }
   console.log('file_paths', file_paths);
 
-  parse(file_paths);
-  //TODO: Use knots.parse()
+  var file_path = file_paths[0];
+
+  knots.parse(file_path).then(displayGraph);
 }
 
 function parseDirectory(directory_paths) {
@@ -41,37 +39,27 @@ function parseDirectory(directory_paths) {
 
   var directory_path = directory_paths[0];
 
-  // TODO: move this code to knotsjs
-  var recursiveReadDir = Promise.promisify(recursive);
-  recursiveReadDir(directory_path, ['*_test.js', ignoreNonJS]).then(function (file_paths) {
-    return parse(file_paths);
-  });
+  knots.parseDirectory(directory_path).then(displayGraph);
 }
 
-function ignoreNonJS(file_path) {
-  return path.extname(file_path) !== '.js';
-}
+function displayGraph(dependencies) {
+  var width  = 960;
+  var height = 500;
 
-function parse(file_paths) {
-  return knots.parseFiles(file_paths).then(function(dependencies) {
-    var width  = 960;
-    var height = 500;
+  var layout_obj = layout.layoutVertices(
+    dependencies.ordered_vertices,
+    width,
+    height
+  );
 
-    var layout_obj = layout.layoutVertices(
-      dependencies.ordered_vertices,
-      width,
-      height
-    );
+  var arranged_dependencies = _.extend({},
+    dependencies,
+    {
+      ordered_vertices: layout_obj.laid_out_vertices,
+      levels          : layout_obj.levels
+    }
+  );
 
-    var arranged_dependencies = _.extend({},
-      dependencies,
-      {
-        ordered_vertices: layout_obj.laid_out_vertices,
-        levels          : layout_obj.levels
-      }
-    );
-
-    graph.erase();
-    graph.show(arranged_dependencies, width, height);
-  });
+  graph.erase();
+  graph.show(arranged_dependencies, width, height);
 }
