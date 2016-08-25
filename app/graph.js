@@ -147,12 +147,67 @@ function show(dependencies, width, height) {
   function onVertexClick(vertex) {
     d3.event.stopPropagation();
     // TODO: get transitive connected edges
-    var connected_edges = _.filter(dependencies.edges, function (edge) {
-      return edge.e.source === vertex.name || edge.e.target === vertex.name;
+    // var connected_edges = _.filter(dependencies.edges, function (edge) {
+    //   return edge.e.source === vertex.name || edge.e.target === vertex.name;
+    // });
+
+    console.log('dependencies', recursiveGetAllDependencies(vertex.name));
+    console.log('dependents', recursiveGetAllDependents(vertex.name));
+
+    var all_dependencies     = recursiveGetAllDependencies(vertex.name);
+    var all_dependents       = recursiveGetAllDependents(vertex.name);
+    var all_transitive_edges = all_dependencies.concat(all_dependents);
+
+    // TODO: Extract this in a different module, nothin to do with d3 stuff
+    all_transitive_edges = _.map(all_transitive_edges, function (edge) {
+      var transformed_edge = {
+        e: {
+          u     : edge.u,
+          v     : edge.v,
+          source: edge.u,
+          target: edge.v
+        },
+        p: dependencies.directed_graph.getEdgeProperty(edge)
+      };
+
+      return transformed_edge;
     });
 
-    highlightEdgesConnectedToVertex(connected_edges);
-    highlightVerticesConnectedToVertex(connected_edges);
+    highlightEdgesConnectedToVertex(all_transitive_edges);
+    highlightVerticesConnectedToVertex(all_transitive_edges);
+  }
+
+  // TODO: Extract this in a different module, nothin to do with d3 stuff
+  function recursiveGetAllDependencies(vertex_id) {
+    if (dependencies.directed_graph.outDegree(vertex_id) === 0) {
+      return [];
+    }
+
+    var direct_edges  = dependencies.directed_graph.outEdges(vertex_id);
+    var all_sub_edges = [];
+
+    _.forEach(direct_edges, function (edge) {
+      all_sub_edges = all_sub_edges.concat(recursiveGetAllDependencies(edge.v));
+    });
+
+    return direct_edges.concat(all_sub_edges);
+  }
+
+  // TODO: Extract this in a different module, nothin to do with d3 stuff
+  function recursiveGetAllDependents(vertex_id) {
+    if (dependencies.directed_graph.inDegree(vertex_id) === 0) {
+      return [];
+    }
+
+    var direct_edges  = dependencies.directed_graph.inEdges(vertex_id);
+    var all_sub_edges = [];
+    console.log('direct_edges', direct_edges);
+
+    _.forEach(direct_edges, function (edge) {
+      all_sub_edges = all_sub_edges.concat(recursiveGetAllDependents(edge.u));
+    });
+
+    return direct_edges.concat(all_sub_edges);
   }
 
   function resetHighlighting() {

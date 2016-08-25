@@ -33,7 +33,7 @@ svg {
 .vertex text {
   pointer-events: none;
   fill: #444;
-  font: 10px sans-serif;
+  font: 11px sans-serif;
 }
 
 .edge.highlighted {
