@@ -1,4 +1,3 @@
-// require('./style.css');
 var remote    = require('remote');
 var dialog    = remote.require('dialog');
 var knots     = require('knotsjs');

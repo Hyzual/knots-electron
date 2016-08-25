@@ -17,14 +17,8 @@
     "lodash": "^4.7.0"
   },
   "devDependencies": {
-    "css-loader": "^0.23.1",
     "electron-connect": "^0.3.7",
     "glob-all": "^3.0.1",
-    "gulp": "^3.9.1",
-    "json-loader": "^0.5.4",
-    "style-loader": "^0.13.1",
-    "webpack": "^1.12.14",
-    "webpack-dev-server": "^1.14.1",
-    "webpack-target-electron-renderer": "^0.4.0"
+    "gulp": "^3.9.1"
   }
 }
