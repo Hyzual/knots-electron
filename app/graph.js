@@ -18,14 +18,15 @@ function show(dependencies, width, height) {
     .zoom()
     .scaleExtent([ 1/2, 8])
     .on('zoom', zoomed);
-  //TODO: limit panning around with translateExtent, I should not be able to pan the entire graph out of view
+    //TODO: limit panning around with translateExtent, I should not be able to pan the entire graph out of view
 
   var svg = d3
     .select('#graph')
     .attr('width', width)
     .attr('height', height)
     .append('g')
-    .call(zoom_behavior);
+    .call(zoom_behavior)
+    .on('click', onSvgClick);
 
   function layoutTransform(transform, obj) {
     return transform.translate(obj.x, obj.y);
@@ -139,8 +140,13 @@ function show(dependencies, width, height) {
     });
   }
 
+  function onSvgClick() {
+    resetHighlighting();
+  }
+
   function onVertexClick(vertex) {
-    console.log('click');
+    d3.event.stopPropagation();
+    // TODO: get transitive connected edges
     var connected_edges = _.filter(dependencies.edges, function (edge) {
       return edge.e.source === vertex.name || edge.e.target === vertex.name;
     });
@@ -150,13 +156,17 @@ function show(dependencies, width, height) {
   }
 
   function resetHighlighting() {
-    // TODO: will need it when I click on blank space
-    // svg
-    //   .selectAll('.edge.highlighted')
-    //   .classed('highlighted', false);
-    // svg
-    //   .selectAll('.vertex.highlighted')
-    //   .classed('highlighted', false);
+    svg
+      .selectAll('.edge.highlighted')
+      .classed('highlighted', false);
+    svg
+      .selectAll('.vertex.highlighted')
+      .classed('highlighted', false);
+
+    var faded_vertices = svg
+      .selectAll('.vertex.faded')
+      .classed('faded', false);
+    addVertexText(faded_vertices);
   }
 
   function highlightEdgesConnectedToVertex(connected_edges) {
