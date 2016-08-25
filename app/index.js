@@ -24,8 +24,6 @@ function parseFile(file_paths) {
   if (! file_paths) {
     return;
   }
-  console.log('file_paths', file_paths);
-
   var file_path = file_paths[0];
 
   knots.parse(file_path).then(displayGraph);
@@ -35,8 +33,6 @@ function parseDirectory(directory_paths) {
   if (! directory_paths) {
     return;
   }
-  console.log('directory_paths', directory_paths);
-
   var directory_path = directory_paths[0];
 
   knots.parseDirectory(directory_path).then(displayGraph);

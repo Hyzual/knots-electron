@@ -14,24 +14,11 @@ function erase() {
 }
 
 function show(dependencies, width, height) {
-  var x = d3
-    .scale
-    .linear()
-    .domain([0, width])
-    .range([0, width]);
-
-  var y = d3
-    .scale
-    .linear()
-    .domain([0, height])
-    .range([0, height]);
-
   var zoom_behavior = d3
-    .behavior
     .zoom()
-    .x(x)
-    .y(y)
-    .on('zoom', zoom);
+    .scaleExtent([ 1/2, 8])
+    .on('zoom', zoomed);
+  //TODO: limit panning around with translateExtent, I should not be able to pan the entire graph out of view
 
   var svg = d3
     .select('#graph')
@@ -40,40 +27,33 @@ function show(dependencies, width, height) {
     .append('g')
     .call(zoom_behavior);
 
-  var isEven = false;
-  function alternateBackgroundColor() {
-    isEven = ! isEven;
-    return isEven;
+  function layoutTransform(transform, obj) {
+    return transform.translate(obj.x, obj.y);
   }
 
-  function layoutTransform(obj) {
-    return 'translate('
-      + x(obj.x) + ','
-      + y(obj.y)
-      + ')';
-  }
-
-  var level = svg
+  var levels = svg
     .selectAll('.level')
     .data(dependencies.levels)
     .enter()
     .append('rect')
-    .attr('class', function(level) {
-      var backgroundColor = (alternateBackgroundColor()) ? 'white' : 'grey';
-      return 'level ' + backgroundColor; })
+    .classed('level', true)
+    .classed('white', function (datum, index) { return index % 2 == 0; })
+    .classed('grey', function (datum, index) { return index % 2 == 1; })
     .attr('width', function(level) { return level.width; })
     .attr('height', function(level) { return level.height; })
-    .attr('transform', layoutTransform);
+    .attr('transform', function(level) {
+      return layoutTransform(d3.zoomIdentity, level);
+    });
 
-  function layoutEdge(edge) {
-    var start_point = 'M ' + x(dependencies.vertices[edge.e.source].x) + ' '
-      + y(dependencies.vertices[edge.e.source].y);
-    var end_point = x(dependencies.vertices[edge.e.target].x) + ' '
-      + y(dependencies.vertices[edge.e.target].y);
+  function layoutEdge(transform, edge) {
+    var start_point = 'M ' + transform.applyX(dependencies.vertices[edge.e.source].x) + ' '
+      + transform.applyY(dependencies.vertices[edge.e.source].y);
+    var end_point = transform.applyX(dependencies.vertices[edge.e.target].x) + ' '
+      + transform.applyY(dependencies.vertices[edge.e.target].y);
 
     if (edge.p.type === 'reverse') {
-      var control_point = x(dependencies.vertices[edge.e.target].x) + ' '
-        + y(dependencies.vertices[edge.e.source].y);
+      var control_point = transform.applyX(dependencies.vertices[edge.e.target].x) + ' '
+        + transform.applyY(dependencies.vertices[edge.e.source].y);
       var curve = 'Q ' + control_point + ',' + end_point;
       return start_point + ' ' + curve;
     }
@@ -81,31 +61,35 @@ function show(dependencies, width, height) {
     return start_point + ' ' +  'L ' + end_point;
   }
 
-  var edge = svg
+  var edges = svg
     .selectAll('.edge')
     .data(dependencies.edges)
     .enter()
     .append('path')
-    .attr('class', 'edge')
-    .attr('d', layoutEdge);
+    .classed('edge', true)
+    .attr('d', function (edge) {
+      return layoutEdge(d3.zoomIdentity, edge);
+    });
 
   var vertices_array = _.values(dependencies.vertices);
 
-  var vertex = svg
+  var vertices = svg
     .selectAll('.vertex')
     .data(vertices_array)
     .enter()
     .append('g')
-    .attr('class', 'vertex')
-    .attr('transform', layoutTransform);
+    .classed('vertex', true)
+    .attr('transform', function(vertex) {
+      return layoutTransform(d3.zoomIdentity, vertex);
+    });
 
-  vertex
+  vertices
     .append('text')
     .attr('dx', 12)
     .attr('dy', '.35em')
     .text(function(vertex) { return vertex.name; });
 
-  vertex
+  vertices
     .append('title')
     .text(function(vertex) {
       return 'name: ' + vertex.name
@@ -120,24 +104,26 @@ function show(dependencies, width, height) {
     .max();
 
   var color = d3
-    .scale
-    .linear()
+    .scaleLinear()
     .domain([0, max_transitive_dependencies_and_dependents])
     .range(["white", "red"]);
 
-  vertex
+  vertices
     .append('circle')
     .attr('r', 7)
     .style('fill', function(vertex) {
       return color(vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents);
     });
 
-  //TODO: limit panning around, I should not be able to pan the entire graph out of view
-  function zoom() {
-    edge.attr('d', layoutEdge);
-    vertex.attr('transform', layoutTransform);
-    level.attr('transform', function(level) {
-      return layoutTransform(level) + 'scale(' + d3.event.scale + ')';
+  function zoomed() {
+    levels.attr('transform', function(level) {
+      return layoutTransform(d3.event.transform, level);
+    });
+    vertices.attr('transform', function(vertex) {
+      return 'translate(' + d3.event.transform.applyX(vertex.x) + ',' + d3.event.transform.applyY(vertex.y) +')';
+    });
+    edges.attr('d', function(edge) {
+      return layoutEdge(d3.event.transform, edge);
     });
   }
 }
