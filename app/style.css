@@ -27,10 +27,27 @@ svg {
 .vertex circle {
   stroke: #000;
   fill: #FFF;
+  cursor: pointer;
 }
 
 .vertex text {
   pointer-events: none;
   fill: #444;
   font: 10px sans-serif;
+}
+
+.edge.highlighted {
+  stroke: #000;
+}
+
+.vertex.highlighted circle {
+  stroke: #0F0;
+}
+
+.vertex.highlighted text {
+  fill: #000;
+}
+
+.vertex.faded circle {
+  stroke: #DDD;
 }

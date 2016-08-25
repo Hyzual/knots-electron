@@ -63,7 +63,9 @@ function show(dependencies, width, height) {
 
   var edges = svg
     .selectAll('.edge')
-    .data(dependencies.edges)
+    .data(dependencies.edges, function (edge) {
+      return edge.e.source + ' ' + edge.e.target;
+    })
     .enter()
     .append('path')
     .classed('edge', true)
@@ -75,19 +77,20 @@ function show(dependencies, width, height) {
 
   var vertices = svg
     .selectAll('.vertex')
-    .data(vertices_array)
+    .data(vertices_array, function (vertex) {
+      return vertex.name;
+    })
     .enter()
     .append('g')
     .classed('vertex', true)
+    .attr('id', function (vertex) {
+      return vertex.name;
+    })
     .attr('transform', function(vertex) {
       return layoutTransform(d3.zoomIdentity, vertex);
     });
 
-  vertices
-    .append('text')
-    .attr('dx', 12)
-    .attr('dy', '.35em')
-    .text(function(vertex) { return vertex.name; });
+  addVertexText(vertices);
 
   vertices
     .append('title')
@@ -113,7 +116,16 @@ function show(dependencies, width, height) {
     .attr('r', 7)
     .style('fill', function(vertex) {
       return color(vertex.p.sum_transitive_dependencies + vertex.p.sum_transitive_dependents);
-    });
+    })
+    .on('click', onVertexClick);
+
+  function addVertexText(vertices) {
+    vertices
+      .append('text')
+      .attr('dx', 12)
+      .attr('dy', '.35em')
+      .text(function(vertex) { return vertex.name; });
+  }
 
   function zoomed() {
     levels.attr('transform', function(level) {
@@ -125,5 +137,64 @@ function show(dependencies, width, height) {
     edges.attr('d', function(edge) {
       return layoutEdge(d3.event.transform, edge);
     });
+  }
+
+  function onVertexClick(vertex) {
+    console.log('click');
+    var connected_edges = _.filter(dependencies.edges, function (edge) {
+      return edge.e.source === vertex.name || edge.e.target === vertex.name;
+    });
+
+    highlightEdgesConnectedToVertex(connected_edges);
+    highlightVerticesConnectedToVertex(connected_edges);
+  }
+
+  function resetHighlighting() {
+    // TODO: will need it when I click on blank space
+    // svg
+    //   .selectAll('.edge.highlighted')
+    //   .classed('highlighted', false);
+    // svg
+    //   .selectAll('.vertex.highlighted')
+    //   .classed('highlighted', false);
+  }
+
+  function highlightEdgesConnectedToVertex(connected_edges) {
+    var highlighted_edges = svg
+      .selectAll('.edge')
+      .data(connected_edges, function (edge) {
+        return edge.e.source + ' ' + edge.e.target;
+      })
+      .classed('highlighted', true)
+      .exit()
+      .classed('highlighted', false);
+  }
+
+  function highlightVerticesConnectedToVertex(connected_edges) {
+    var target_vertices_names = _.map(connected_edges, 'e.target');
+    var source_vertices_names = _.map(connected_edges, 'e.source');
+
+    var connected_vertices_names = _.union(target_vertices_names, source_vertices_names);
+
+    var connected_vertices = _.filter(dependencies.vertices, function (vertex) {
+      return _.includes(connected_vertices_names, vertex.name);
+    });
+
+    var vertices = svg
+      .selectAll('.vertex')
+      .data(connected_vertices, function(vertex) {
+        return vertex.name;
+      })
+      .classed('faded', false)
+      .classed('highlighted', true);
+
+    vertices
+      .select('text').remove();
+    addVertexText(vertices);
+
+    vertices.exit()
+      .classed('highlighted', false)
+      .classed('faded', true)
+      .select('text').remove();
   }
 }
