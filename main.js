@@ -1,6 +1,8 @@
 'use strict';
 
 var electron = require('electron');
+var ipc      = require('electron').ipcMain;
+var dialog   = require('electron').dialog;
 
 // Module to control application life.
 var app           = electron.app;
@@ -19,9 +21,7 @@ function createWindow () {
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
-
-  console.log('ay eah!');
+  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -51,4 +51,32 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+ipc.on('open-file-dialog', function (event) {
+  dialog.showOpenDialog({
+    filters: [
+      { name: 'Javascript files', extensions: ['js'] }
+    ]
+  }, function (file_paths) {
+    if (! file_paths) {
+      return;
+    }
+    var file_path = file_paths[0];
+
+    event.sender.send('selected-file', file_path);
+  });
+});
+
+ipc.on('open-directory-dialog', function (event) {
+  dialog.showOpenDialog({
+    properties: ['openDirectory']
+  }, function (directory_paths) {
+    if (! directory_paths) {
+      return;
+    }
+    var directory_path = directory_paths[0];
+
+    event.sender.send('selected-directory', directory_path);
+ });
 });

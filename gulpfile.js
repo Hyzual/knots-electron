@@ -8,11 +8,10 @@ gulp.task('serve', function () {
   electron.start();
 
   // Restart browser process
-  // gulp.watch('main.js', electron.restart);
+  gulp.watch('main.js', electron.restart);
 
   // Reload renderer process
   var files = glob.sync([
-  	'main.js',
     'app/style.css',
   	'app/**/*.js',
   	'index.html'

@@ -18,7 +18,6 @@ function show(dependencies, width, height) {
     .zoom()
     .scaleExtent([ 1/2, 10])
     .on('zoom', zoomed);
-    //TODO: limit panning around with translateExtent, I should not be able to pan the entire graph out of view
 
   var svg = d3
     .select('#graph')
@@ -141,6 +140,8 @@ function show(dependencies, width, height) {
   }
 
   function onSvgClick() {
+    d3.event.stopPropagation();
+
     resetHighlighting();
   }
 
