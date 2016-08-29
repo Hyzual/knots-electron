@@ -1,15 +1,26 @@
 {
   "name": "knots-electron",
-  "version": "1.0.0",
-  "description": "Electron app to visualize knotsjs",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/electron .",
-    "watch": "./node_modules/.bin/gulp serve"
-  },
-  "author": "Hyzual <hyzual@gmail.com>",
+  "version": "0.1.0",
+  "description": "Turn your source code into a graph",
   "license": "GPL-3.0",
+  "homepage": "http://hyzual.github.io/knotsjs",
+  "keywords": [
+    "dependencies",
+    "graph",
+    "interactive"
+  ],
+  "author": {
+    "name": "Joris MASSON",
+    "email": "hyzual@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hyzual/knots-electron.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hyzual/knots-electron/issuers"
+  },
+  "main": "main.js",
   "dependencies": {
     "d3": "^4.2.2",
     "electron": "1.3.4",
@@ -20,5 +31,10 @@
     "electron-connect": "^0.4.7",
     "glob-all": "^3.0.1",
     "gulp": "^3.9.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/electron .",
+    "watch": "./node_modules/.bin/gulp serve"
   }
 }

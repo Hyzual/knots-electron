@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>knots-electron</title>
-  <link rel="stylesheet" type="text/css" href="app/style.css">
+    <meta charset="utf-8">
+    <title>Knots</title>
+    <link rel="stylesheet" type="text/css" href="app/style.css">
 </head>
 <body>
-  <h1>Knots</h1>
-  <button type="button" onclick="openFile();">Open File</button>
-  <button type="button" onclick="openDirectory();">Open Directory</button>
-  <p>
-  We are using node <script>document.write(process.versions.node)</script>,
-  Chrome <script>document.write(process.versions.chrome)</script>,
-  and Electron <script>document.write(process.versions.electron)</script>.
-  </p>
-  <svg id="graph"></svg>
-  <!-- build:remove -->
-  <!-- Connect to server process -->
-  <script>require('electron-connect').client.create()</script>
-  <!-- end:build -->
-  <script src="app/index.js" type="text/javascript" charset="utf-8" async></script>
-  <!-- <script src="http://localhost:8080/dist/bundle.js" type="text/javascript" charset="utf-8"></script> -->
+    <h1>Knots</h1>
+    <button type="button" onclick="openFile();">Open File</button>
+    <button type="button" onclick="openDirectory();">Open Directory</button>
+    <p class="help-paragraph">
+        Choose a single javascript (.js) file to parse with the "Open File" button, or use "Open Directory" to recursively parse a directory containing javascript files. The resulting graph will be displayed below.<br>
+        You can hover on a node to display more information. Click on a node to highlight all connected nodes.<br>
+        You can zoom the graph using the mouse wheel.<br>
+    </p>
+    <svg id="graph"></svg>
+    <!-- build:remove -->
+    <!-- Connect to server process -->
+    <script>require('electron-connect').client.create()</script>
+    <!-- end:build -->
+    <script src="app/index.js" type="text/javascript" charset="utf-8" async></script>
 </body>
 </html>
