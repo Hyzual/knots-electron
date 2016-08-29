@@ -72,10 +72,6 @@ h1 {
   stroke: #0F0;
 }
 
-.vertex.highlighted text {
-  fill: #000;
-}
-
 .vertex.faded circle {
   stroke: #DDD;
 }

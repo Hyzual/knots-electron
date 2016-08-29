@@ -2,15 +2,23 @@
 > Turn your source code into a graph
 
 Have you ever found yourself staring at a file someone else had written, wondering where it all starts ? You pick a place at random and look for a function that's calling it, and slowly you painstakingly retrace the path the code takes. What if you had a map 🗺 to follow that path ?
+
 Maybe you want to estimate how difficult it will be to modify a piece of code. Most of the time, you don't take time to look at what will need to be modified. But then, when you're actually modifying a function, it turns out that it was called by a lot of other functions, and if you modify it you'll need to also change all these other functions. Usually, the actual feature becomes a lot more difficult than you had estimated. What if you could have known ? What if you could run a tool and look at a graph and know exactly which functions would be affected by that change ?
 
 ## What Knots does
 
-knots-electron is an [electron][[electron]] app using [knotsjs][knotsjs] to parse your javascript code for you and identify all the functions and the links between them. Which function calls which others ? How many dependencies does this function have ?  What about the _transitive_ dependencies, how many functions do my dependencies call ? Knots can help you see them.
+knots-electron is an [electron][electron] app using [knotsjs][knotsjs] to parse your javascript code for you and identify all the functions and the links between them. Which function calls which others ? How many dependencies does this function have ?  What about the _transitive_ dependencies, how many functions do my dependencies call ? Knots can help you see them.
 
 Why only functions ? Because the function is the atom of code. Ultimately, it's all functions calling other functions.
 
 Choose a javascript file or a folder containing javascript files and Knots will parse them and render an interactive [D3.js][d3js] graph that you can explore to follow the function calls in your source code.
+
+Here is what source code turned into a graph looks like:
+
+![Rendered graph][knots-screenshot]
+
+See the [Example][example] section for an explanation of the graph.
+
 
 ## Installation
 
@@ -63,12 +71,17 @@ Knots graphs follow the same convention as [Spoiklin Soice][spoiklin] graphs as 
   White circles ◯ represent functions that are relatively standalone and should not be so difficult to change.
 
   Here is [another example][other-example] with more functions to see the variations.
-2. Each function is ordered on levels. The higher the level is, the less depended upon the function. In other words, function that are "top-level" and are never called by anyone are on the highest level. Functions that are the most called are on the lowest level. Levels are indicated with bands of alternating grey and white background.
+2. Each function is ordered on levels. The higher the level is, the less depended upon the function. In other words, function that are "top-level" and are never called by anyone are on the highest level. Functions that have the highest maximum dependent depth are on the lowest level.
+
+  - `foo` is never called by anyone and is at the highest level.
+  - `baz` is called by `bar` which is called by `foo`, it is at the lowest level. It has a max dependent depth of 2.
+
+  Levels are indicated with bands of alternating grey and white background.
 
   Having lots of levels indicates potential maintenance problems. See this [blog post on code depth][edmundkirwan-depth] by Edmund Kirwan, creator of [Spoiklin Soice][spoiklin].
-3. Dependencies between functions can be of two types:
-  - straight line, the most common, is a dependency from top to bottom, from a function on a higher level to a function on a lower level
-  - curved line, this indicates some sort of cycle in the graph. It happens with circular dependencies. You should not have curved lines in your graphs ☺️
+3. Dependencies between functions can be one of two types:
+  - straight line, the most common, is a dependency from top to bottom, from a function on a higher level to a function on a lower level.
+  - curved line, this indicates some sort of cycle in the graph. It happens with circular dependencies. You should avoid having curved lines in your graphs ;).
 
 You can hover on a node to display more information such as:
 
@@ -113,6 +126,7 @@ GPL v3 © Joris "Hyzual" MASSON
 [d3js]: https://d3js.org
 [edmundkirwan-depth]: http://edmundkirwan.com/general/tuples.html
 [electron]: http://electron.atom.io/
+[example]: #example-of-result
 [knotsjs-limitations]: https://github.com/Hyzual/knotsjs#limitations
 [knotsjs-screenshot-source-code]: https://github.com/Hyzual/knotsjs/blob/c7fe55c588477ba6a3740e5c1c6473a430f01550/lib/index.js
 [knotsjs]: https://github.com/Hyzual/knotsjs
